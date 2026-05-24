@@ -11,11 +11,7 @@
     "build": "turbo build",
     "check-types": "turbo check-types",
     "dev:web": "turbo -F web dev",
-    "dev:server": "turbo -F server dev",
-    "db:push": "turbo -F @vedaai/db db:push",
-    "db:studio": "turbo -F @vedaai/db db:studio",
-    "db:generate": "turbo -F @vedaai/db db:generate",
-    "db:migrate": "turbo -F @vedaai/db db:migrate"
+    "dev:server": "turbo -F server dev"
   },
   "dependencies": {
     "@vedaai/env": "*",

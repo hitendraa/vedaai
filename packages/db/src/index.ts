@@ -1,12 +1,24 @@
-import { neon } from "@neondatabase/serverless";
 import { env } from "@vedaai/env/server";
-import { drizzle } from "drizzle-orm/neon-http";
+import mongoose from "mongoose";
 
-import * as schema from "./schema";
+export * from "./models/assignment";
+export * from "./models/result";
 
-export function createDb() {
-  const sql = neon(env.DATABASE_URL);
-  return drizzle(sql, { schema });
+let connectionPromise: Promise<typeof mongoose> | null = null;
+
+export async function connectDb() {
+  if (mongoose.connection.readyState === 1) {
+    return mongoose;
+  }
+
+  connectionPromise ??= mongoose.connect(env.MONGODB_URI, {
+    dbName: env.MONGODB_DB_NAME,
+  });
+
+  return connectionPromise;
 }
 
-export const db = createDb();
+export async function disconnectDb() {
+  connectionPromise = null;
+  await mongoose.disconnect();
+}
