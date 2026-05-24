@@ -1,4 +1,5 @@
 import { createReadStream } from "node:fs";
+import { readFile } from "node:fs/promises";
 import { OpenAI, toFile } from "openai";
 import { env } from "@vedaai/env/server";
 
@@ -37,6 +38,17 @@ type GenerateQuestionPaperInput = {
   additionalInstructions?: string;
   attachments: AttachmentInput[];
 };
+
+type AttachmentContent =
+  | {
+      type: "input_file";
+      file_id: string;
+    }
+  | {
+      type: "input_image";
+      image_url: string;
+      detail: "auto";
+    };
 
 const questionPaperJsonSchema = {
   type: "object",
@@ -130,23 +142,36 @@ function buildPrompt(input: GenerateQuestionPaperInput) {
 async function uploadAttachments(
   client: OpenAI,
   attachments: AttachmentInput[],
-) {
-  const uploadedFiles = await Promise.all(
+): Promise<AttachmentContent[]> {
+  return Promise.all(
     attachments.map(async (attachment) => {
+      if (attachment.mimeType.startsWith("image/")) {
+        const fileBuffer = await readFile(attachment.path);
+
+        return {
+          type: "input_image",
+          image_url: `data:${attachment.mimeType};base64,${fileBuffer.toString("base64")}`,
+          detail: "auto",
+        };
+      }
+
       const file = await toFile(
         createReadStream(attachment.path),
         attachment.originalName,
         { type: attachment.mimeType },
       );
 
-      return client.files.create({
+      const uploadedFile = await client.files.create({
         file,
         purpose: "user_data",
       });
+
+      return {
+        type: "input_file",
+        file_id: uploadedFile.id,
+      };
     }),
   );
-
-  return uploadedFiles.map((file) => file.id);
 }
 
 function parseQuestionPaper(text: string): GeneratedQuestionPaper {
@@ -169,7 +194,7 @@ export async function generateQuestionPaper(
   input: GenerateQuestionPaperInput,
 ): Promise<GeneratedQuestionPaper> {
   const client = getOpenAIClient();
-  const uploadedFileIds = await uploadAttachments(client, input.attachments);
+  const attachmentContent = await uploadAttachments(client, input.attachments);
 
   const response = await client.responses.create({
     model: env.OPENAI_MODEL,
@@ -186,10 +211,7 @@ export async function generateQuestionPaper(
             type: "input_text",
             text: buildPrompt(input),
           },
-          ...uploadedFileIds.map((fileId) => ({
-            type: "input_file" as const,
-            file_id: fileId,
-          })),
+          ...attachmentContent,
         ],
       },
     ],
