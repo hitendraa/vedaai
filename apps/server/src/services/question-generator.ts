@@ -1,5 +1,5 @@
 import { createReadStream } from "node:fs";
-import OpenAI, { toFile } from "openai";
+import { OpenAI, toFile } from "openai";
 import { env } from "@vedaai/env/server";
 
 type QuestionTypeConfig = {
