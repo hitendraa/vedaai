@@ -5,7 +5,7 @@ import {
   connectDb,
 } from "@vedaai/db";
 import { Job, Queue, Worker } from "bullmq";
-import IORedis from "ioredis";
+import { Redis } from "ioredis";
 import type { Server } from "socket.io";
 import { generateQuestionPaper } from "../services/question-generator";
 
@@ -22,7 +22,7 @@ type AssignmentStatus =
 
 let worker: Worker<AssignmentGenerationJob> | null = null;
 let queue: Queue<AssignmentGenerationJob> | null = null;
-let redisConnection: IORedis | null = null;
+let redisConnection: Redis | null = null;
 let redisWarningShown = false;
 
 function warnRedisOnce(message: string) {
@@ -41,7 +41,7 @@ function getRedisConnection() {
     return redisConnection;
   }
 
-  redisConnection = new IORedis(env.REDIS_URL, {
+  redisConnection = new Redis(env.REDIS_URL, {
     enableOfflineQueue: false,
     lazyConnect: true,
     maxRetriesPerRequest: null,
