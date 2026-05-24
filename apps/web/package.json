@@ -1,0 +1,32 @@
+{
+  "name": "web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3001",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@vedaai/env": "*",
+    "@vedaai/ui": "*",
+    "babel-plugin-react-compiler": "^1.0.0",
+    "dotenv": "^17.2.2",
+    "lucide-react": "^0.546.0",
+    "next": "^16.2.0",
+    "next-themes": "^0.4.6",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "sonner": "^2.0.5",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.18",
+    "@types/node": "^20",
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3",
+    "@vedaai/config": "*",
+    "tailwindcss": "^4.1.18",
+    "typescript": "^6"
+  }
+}

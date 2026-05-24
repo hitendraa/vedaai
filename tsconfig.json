@@ -1,0 +1,3 @@
+{
+  "extends": "@vedaai/config/tsconfig.base.json"
+}
